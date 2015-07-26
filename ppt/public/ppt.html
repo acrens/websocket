@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Nodejs+WebSocket</title>
+</head>
+
+<body style="display: none">
+    <section class='slides layout-regular template-default'>
+        <article>
+            <h1 style="text-align:center;">
+                <p>NodeJS  +  WebSocket</p>
+                <p>Express  +  socket.io</p>
+            </h1>
+            <br />
+            <br />
+            <p style="text-align:right;">2015-07-27</p>
+            <p style="text-align:right;">丁香园前端组</p>
+            <p style="text-align:right;">主讲人：程仁</p>
+        </article>
+
+        <article>
+            <h3>什么是NodeJS？</h3>
+            <br>
+            <div class="build">
+                <p>Node是一个服务器端 JavaScript 解释器，可以快速构建网络服务及应用。</p>
+                <h3><br/><br/>特点:</h3>
+            </div>
+            <ul class="build">
+                <li>
+                    纯javascript实现
+                </li>
+                <li>
+                    基于 Google V8
+                </li>
+                <li>
+                    事件驱动
+                </li>
+                <li>
+                    非阻塞 I/O 模型
+                </li>
+            </ul>
+        </article>
+        <article>
+            <h3>
+                阻塞与非阻塞——代码对比
+            </h3>
+            <section>
+                <pre>
+&lt;script type='text/javascript'&gt;
+//阻塞
+get_a_request();//从请求列队中得到一个请求
+handle_request();//处理这个请求，如：读写数据库，读文件
+feedback();     //返回处理结果
+get_next_request();//从列队中获得下一个请求
+
+//非阻塞
+get_a_request();
+handle_request(function(){//处理这个请求
+        feedback(); //等到处理完成后，返回处理结果
+});
+get_next_request();//从列队中获得下一个请求
+
+&lt;/script&gt;
+                </pre>
+            </section>
+        </article>
+
+        <article>
+            <h3>
+               Hello World!
+            </h3>
+            <section>
+                <pre>
+var http = require("http");
+http.createServer(function(request,response){
+
+   response.writeHead(200,{"Content-Type":"text/plain"});
+   response.end("Hello World\n");
+}).listen(3456);
+
+console.log("server running at 127.0.0.1:3456");
+                </pre>
+            </section>
+        </article>
+        <article>
+            <h3>Express</h3>
+            <div class="build">
+                <p>
+                    <br> 是一个简洁而灵活的 node.js Web应用框架
+                    <br/>
+                </p>
+                <p> 提供一系列强大特性帮助你创建各种Web应用</p>
+                <ul>
+                    <li>Sails.js</li>
+                    <li>Total.js</li>
+                    <li>Koa.js</li>
+                    <li>Locomotive.js</li>
+                    <li>Partial.js</li>
+                    <li>Fatiron.js</li>
+                    <li>Socket Stream</li>
+                    <li>Geddy.js</li>
+                </ul>
+            </div>
+        </article>
+        <article>
+            <h3>Express结构</h3>
+            <p>
+                <img src='images/express1.png'>
+            </p>
+            <ul>
+                <li>app.js : 项目入口</li>
+                <li>node_modules : 存放项目的依赖库</li>
+                <li>package.json : 项目依赖配置及开发者信息</li>
+                <li>public : 静态文件如 css,js,img</li>
+                <li>routes : 路由文件</li>
+                <li>views : 页面模板引擎，jade、Ejs</li>
+            </ul>
+        </article>
+        <article>
+            <h3>WebSocket</h3>
+            <br>
+            <br>
+            <div class="build">
+                <p>WebSocket是一种基于TCP链接的双工的通讯方式</p>
+                <p>
+                    <br> 轮询(polling)。轮询是在特定的的时间间隔(time interval)（如每1秒），由浏览器对服务器发出HTTP request，然后由服务器返回最新的数据给客服端的浏览器。
+                </p>
+                <p>
+                    <br> 服务器可以
+                    <span class="red">主动</span>传送数据给客户端
+                </p>
+                <p>
+                    大大减少长连接的请求头大小
+                </p>
+                <p>百万级别websocket常连接：<a href="http://colobu.com/2015/05/22/implement-C1000K-servers-by-spray-netty-undertow-and-node-js/">http://colobu.com/2015/05/22/implement-C1000K-servers-by-spray-netty-undertow-and-node-js/</a></p>
+            </div>
+        </article>
+        <article>
+            <h3>WebSocket与polling工作原理</h3>
+            <br>
+            <p><img src="images/websocket1.gif" style="height:330px;width: 350px" />
+                <img src="images/websocket2.gif" style="height: 330px" /></p>
+        </article>
+        <article>
+            <h3>对比</h3>
+            <table>
+                <thead>
+                    <th>名称</th>
+                    <th>定义</th>
+                    <th>优点</th>
+                    <th>缺点</th>
+                    <th>实例</th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>轮询</td>
+                        <td>定时发送Ajax</td>
+                        <td>后端程序编写容易</td>
+                        <td>浪费带宽和服务器资源</td>
+                        <td>适于小型应用</td>
+                    </tr>
+                    <tr>
+                        <td>长连接</td>
+                        <td>iframe发送长连接请求或采用xhr请求</td>
+                        <td>消息即时到达，不发无用请求</td>
+                        <td>服务器维护一个长连接会增加开销</td>
+                        <td>Gmail聊天</td>
+                    </tr>
+                    <tr>
+                        <td>websocket</td>
+                        <td>一次连接，双工通信</td>
+                        <td>实时避免无用数据</td>
+                        <td>兼容性</td>
+                        <td>股票等实时获取数据应用</td>
+                    </tr>
+                </tbody>
+            </table>
+        </article>
+        <article>
+            <h3>WebSocket与polling性能比较</h3>
+            <br>
+            <p><img src="images/websocket3.gif"></p>
+        </article>
+        <article>
+            <h3>适用场景</h3>
+            <p>
+                <br> 适用于需要实时通信的场景
+                <br>如：实时信息监控，即时消息传递，网页游戏，股票信息推送等等
+            </p>
+            <br>
+            <br>
+            <h3>兼容情况</h3>
+            <table>
+                <th>浏览器</th>
+                <th>版本</th>
+                <tr>
+                    <td>Chrome</td>
+                    <td>4+</td>
+                </tr>
+                <tr>
+                    <td>firefox</td>
+                    <td>4+</td>
+                </tr>
+                <tr>
+                    <td>IE</td>
+                    <td>10+</td>
+                </tr>
+                <tr>
+                    <td>Safari</td>
+                    <td>5+</td>
+                </tr>
+            </table>
+        </article>
+        <article>
+            <h3><br>socket.io<br></h3>
+            <div class="build">
+                <p>
+                    <br>
+                    <br>一个WebSocket库，包括了客户端的js和服务器端的js
+                    <br>
+                </p>
+                <h3 class="black"><br><br><b>作用</b></h3>
+                <p>构建可以在不同浏览器和移动设备上使用的实时应用
+                    <br>
+                </p>
+                <p>自动根据浏览器从WebSocket、AJAX长轮询、Iframe流等等各种方式中选择最佳的方式来实现网络实时应用</p>
+            </div>
+        </article>
+        <article>
+            <article>
+                <h3>
+                    Hello World!
+                </h3>
+                <section>
+                    <pre>
+//server code
+var io = require('socket.io')(server); // express server
+io.on('connection', function(socket) {
+  socket.emit('news', { hello: 'world' });
+  socket.on('my other event', function (data) {
+    console.log(data);
+  });
+});
+</pre>
+                    <pre>
+//client code
+&lt;script src="/socket.io/socket.io.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+    var socket = io.connect();
+    socket.on('news', function (data) {
+        console.log(data);
+        socket.emit('my other event', { my: 'data' });
+    });
+&lt;/script&gt;
+</pre>
+                </section>
+            </article>
+        </article>
+        <article>
+            <h1 style="text-align:center;"> Have A Try </h1>
+        </article>
+        <article>
+            <section>
+                <h3>Sender code</h3>
+                <pre>
+                    var socket = io.connect();
+
+                    // 下一页PPT
+                    $('#next').click(function() {
+                        socket.emit('next', {
+                            text: 'next'
+                        });
+                    });
+
+                    // 上一页PPT
+                    $('#prev').click(function() {
+                        socket.emit('prev', {
+                            text: 'prev'
+                        });
+                    });
+
+                </pre>
+            </section>
+        </article>
+        <article>
+            <h3>Server Code</h3>
+            <section>
+                <pre>
+                io.on('connection', function(socket) {
+                    socket.on('prev', function(data) {
+                        //广播出自己之外的client
+                        socket.broadcast.emit("prev", {
+                            text: "prev"
+                        });
+
+                        // 通知所有已连接客户端的人
+                        // io.sockets.emit('chat', {
+                        //    data: data
+                        // });
+                    });
+
+                    socket.on('next', function(data) {
+                        socket.broadcast.emit("next", {
+                            text: "next"
+                        });
+                    });
+                });
+                </pre>
+            </section>
+        </article>
+        <article>
+            <section>
+                <h3>Receiver code</h3>
+                <pre>
+                    var socket = io.connect();
+
+                    // 接收prev weksocket事件
+                    socket.on("next", function(data) {
+                        nextSlide();
+                    });
+
+                    // 监听prev weksocket事件
+                    socket.on("prev", function(data) {
+                        prevSlide();
+                    });
+                </pre>
+            </section>
+        </article>
+        <article>
+            <h1>提问与交流</h1>
+            <p style="float:right;"><img style="margin-right: 100px;" src="./images/wenhao.jpg" /></p>
+        </article>
+        <article>
+            <h1 style="text-align:center;">谢谢</h1>
+        </article>
+    </section>
+    <script type="text/javascript" src="./javascripts/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="./javascripts/html5slides.js"></script>
+    <script type="text/javascript" src="./socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="./javascripts/login.js"></script>
+</body>
+
+</html>
